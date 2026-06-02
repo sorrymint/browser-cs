@@ -20,10 +20,10 @@
         <link href="CloudIDE.styles.css" rel="stylesheet" />
         <script type="importmap"></script>
     <script>
-        // Set base href dynamically based on current path
-        const pathArray = window.location.pathname.split('/');
+    <script>
+        // Set base href based on hostname
         let basePath = '/';
-        if (pathArray[1] === 'browser-cs') {
+        if (window.location.hostname === 'sorrymint.github.io') {
             basePath = '/browser-cs/';
         }
         document.getElementById('appBase').setAttribute('href', basePath);
