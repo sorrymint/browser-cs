@@ -1,0 +1,127 @@
+﻿@page "/"
+@using BlazorMonaco.Editor
+@using BlazorMonaco.Languages
+@inject IJSRuntime JS
+@inject CompilerService Compiler
+
+<div class="ide-container">
+    <div class="toolbar">
+        <button class="btn btn-success" @onclick="ExecuteCode">▶ Run Code</button>
+        <span>C# Browser IDE</span>
+    </div>
+
+    <div class="editor-pane">
+        <div class="editor-host">
+            <StandaloneCodeEditor @ref="_editor" Id="csharp-editor"
+                                  ConstructionOptions="EditorConstructionOptions"
+                                  OnDidInit="OnEditorInit"
+                                  OnDidChangeModelContent="HandleContentChanged" />
+        </div>
+    </div>
+
+    <div class="output-pane">
+        <pre style="margin: 0;">@_output</pre>
+    </div>
+</div>
+
+@code {
+    @* 2. Change the variable type here *@
+    private StandaloneCodeEditor _editor = null!;
+    private string _output = "Output will appear in the browser console (F12) for now...";
+    private const string StorageKey = "user_csharp_code";
+
+    @* 3. Change the parameter type in this method signature *@
+    private StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor) => new()
+    {
+        Language = "csharp",
+        Theme = "vs-dark",
+        Value = "Console.WriteLine(\"Hello, World!\");\nint c = 3 + 4;\nConsole.WriteLine(c);",
+        AutomaticLayout = true,
+        FontSize = 14,
+        LineHeight = 20,
+        ScrollBeyondLastLine = false
+    };
+
+    private async Task OnEditorInit()
+{
+    // 1. Load from LocalStorage
+    var saved = await JS.InvokeAsync<string>("localStorage.getItem", StorageKey);
+    if (!string.IsNullOrEmpty(saved))
+    {
+        await _editor.SetValue(saved);
+    }
+
+    // 2. FORCE RE-LAYOUT (This fixes the "squashed" text)
+    // We give the browser a split second to finish rendering the div first
+    await Task.Delay(100); 
+    await _editor.Layout(); 
+}
+
+private async Task HandleContentChanged(ModelContentChangedEvent args)
+{
+    var code = await _editor.GetValue();
+    await JS.InvokeVoidAsync("localStorage.setItem", StorageKey, code);
+}
+
+    private async Task ExecuteCode()
+    {
+        _output = "Compiling...";
+        StateHasChanged();
+        var code = await _editor.GetValue();
+        
+        try 
+        {
+            _output = await Compiler.CompileAndRun(code);
+        }
+        catch (Exception ex)
+        {
+            _output = $"Runtime Error: {ex.Message}";
+        }
+    }
+}
+
+<style>
+    .ide-container {
+        display: grid;
+        grid-template-rows: auto minmax(300px, 1fr) 200px;
+        min-height: calc(100vh - 4.6rem);
+        width: 100%;
+        background-color: #1e1e1e;
+    }
+
+    .toolbar { 
+        background: #333; 
+        padding: 10px; 
+        color: white; 
+        display: flex; 
+        align-items: center; 
+        gap: 20px;
+    }
+
+    .editor-pane {
+        min-height: 300px;
+        height: 100%;
+        position: relative;
+    }
+
+    .editor-host {
+        height: 100%;
+        width: 100%;
+    }
+
+    #csharp-editor,
+    #csharp-editor .monaco-editor,
+    #csharp-editor .overflow-guard,
+    #csharp-editor .monaco-scrollable-element {
+        height: 100% !important;
+        width: 100% !important;
+    }
+
+    .output-pane { 
+        background: #000; 
+        color: #00ff00; /* Let's make it look like a terminal */
+        padding: 15px; 
+        font-family: 'Cascadia Code', 'Courier New', monospace; 
+        overflow-y: auto; 
+    }
+</style>
