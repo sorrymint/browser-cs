@@ -4,7 +4,7 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>CloudIDE</title>
-        <base href="/" />
+        <base id="appBase" href="/" />
         <link rel="preload" id="webassembly" />
         <link
             rel="stylesheet"
@@ -19,6 +19,15 @@
         <link rel="icon" type="image/png" href="favicon.png" />
         <link href="CloudIDE.styles.css" rel="stylesheet" />
         <script type="importmap"></script>
+    <script>
+        // Set base href dynamically based on current path
+        const pathArray = window.location.pathname.split('/');
+        let basePath = '/';
+        if (pathArray[1] === 'browser-cs') {
+            basePath = '/browser-cs/';
+        }
+        document.getElementById('appBase').setAttribute('href', basePath);
+    </script>
     </head>
 
     <body>
