@@ -35,18 +35,23 @@
             <a href="." class="reload">Reload</a>
             <span class="dismiss">🗙</span>
         </div>
-        <script src="_content/BlazorMonaco/jsInterop.js"></script>
-        <script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/loader.js"></script>
-        <script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
-        <script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.js"></script>
-        <script src="_framework/blazor.webassembly.js" autostart="false"></script>
+        <script src="_content/BlazorMonaco/jsInterop.js?v=2"></script>
+        <script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/loader.js?v=2"></script>
+        <script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.nls.js?v=2"></script>
+        <script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.js?v=2"></script>
+        <script
+            src="_framework/blazor.webassembly.js?v=2"
+            autostart="false"
+        ></script>
         <script>
-          // Force Blazor to fetch its files from a different path structure if needed,
-          // or manually trigger start to ensure paths align with the base href
-          Blazor.start({
-            loadBootConfig: function (defaultConfigUrl, defaultResourceLoader) {
-              return defaultConfigUrl;
-            }
-          });
+            Blazor.start({
+                loadBootConfig: function (
+                    defaultConfigUrl,
+                    defaultResourceLoader,
+                ) {
+                    return defaultConfigUrl;
+                },
+            });
         </script>
+    </body>
 </html>

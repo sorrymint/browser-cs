@@ -1,7 +1,8 @@
 name: Deploy to GitHub Pages
 
 env:
-  PUBLISH_DIR: bin/Release/net9.0/publish/wwwroot
+  # Point directly to the isolated output folder
+  PUBLISH_DIR: release_output/wwwroot
 
 on:
   push:
@@ -33,14 +34,14 @@ jobs:
       with:
         dotnet-version: '9.0.x'
 
+    # Force the output to a brand new directory to guarantee we aren't uploading stale files
     - name: Publish
-      run: dotnet publish -c Release
+      run: dotnet publish -c Release -o release_output
 
-    # FIX 1: Prevent GitHub from ignoring Blazor's underscore folders (_framework, _content)
+    # Use touch to ensure a completely empty file
     - name: Add .nojekyll
-      run: echo dev > ${{ env.PUBLISH_DIR }}/.nojekyll
+      run: touch ${{ env.PUBLISH_DIR }}/.nojekyll
 
-    # FIX 2: Create a 404.html page copying index.html so deep links/refreshes don't break
     - name: Create 404 page fallback
       run: cp ${{ env.PUBLISH_DIR }}/index.html ${{ env.PUBLISH_DIR }}/404.html
 
@@ -50,7 +51,6 @@ jobs:
         html_path: ${{ env.PUBLISH_DIR }}/index.html
         base_href: /browser-cs/
 
-    # Also rewrite the base href in the 404 page we just created
     - name: Rewrite base href for 404 page
       uses: SteveSandersonMS/ghaction-rewrite-base-href@5b54862a8831e012d4f1a8b2660894415fdde8ec
       with:
