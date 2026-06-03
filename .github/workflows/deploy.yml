@@ -38,7 +38,7 @@ jobs:
 
     # FIX 1: Prevent GitHub from ignoring Blazor's underscore folders (_framework, _content)
     - name: Add .nojekyll
-      run: touch ${{ env.PUBLISH_DIR }}/.nojekyll
+      run: echo dev > ${{ env.PUBLISH_DIR }}/.nojekyll
 
     # FIX 2: Create a 404.html page copying index.html so deep links/refreshes don't break
     - name: Create 404 page fallback
