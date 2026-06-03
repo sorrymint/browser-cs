@@ -1,7 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using System.Reflection;
-using System.Net;
 using System.Text.Json;
 
 public class CompilerService
@@ -16,13 +15,16 @@ public class CompilerService
 
     public async Task InitializeAsync()
     {
-        if (_references != null) return;
+        if (_references != null)
+        {
+            return;
+        }
 
+        //Do we need this?
         var bootJson = await _httpClient.GetStringAsync("_framework/blazor.boot.json");
         using var doc = JsonDocument.Parse(bootJson);
         var resources = doc.RootElement.GetProperty("resources");
 
-        // Prefixes of assemblies required for basic C# console programs
         var needed = new[]
         {
             "System.Private.CoreLib.",
@@ -37,7 +39,6 @@ public class CompilerService
         };
 
         var filenames = new List<string>();
-
         foreach (var section in new[] { "coreAssembly", "assembly" })
         {
             if (!resources.TryGetProperty(section, out var el)) continue;
@@ -49,12 +50,10 @@ public class CompilerService
         }
 
         var references = new List<MetadataReference>();
-
         foreach (var filename in filenames)
         {
             var response = await _httpClient.GetAsync($"_framework/{filename}");
             if (!response.IsSuccessStatusCode) continue;
-
             var bytes = await response.Content.ReadAsByteArrayAsync();
             references.Add(MetadataReference.CreateFromImage(bytes));
         }

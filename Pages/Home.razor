@@ -25,12 +25,10 @@
 </div>
 
 @code {
-    @* 2. Change the variable type here *@
     private StandaloneCodeEditor _editor = null!;
     private string _output = "Output will appear in the browser console (F12) for now...";
     private const string StorageKey = "user_csharp_code";
 
-    @* 3. Change the parameter type in this method signature *@
     private StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor) => new()
     {
         Language = "csharp",
@@ -42,26 +40,22 @@
         ScrollBeyondLastLine = false
     };
 
-    private async Task OnEditorInit()
-{
-    // 1. Load from LocalStorage
-    var saved = await JS.InvokeAsync<string>("localStorage.getItem", StorageKey);
-    if (!string.IsNullOrEmpty(saved))
+    private async Task OnEditorInit() 
     {
-        await _editor.SetValue(saved);
+        var saved = await JS.InvokeAsync<string>("localStorage.getItem", StorageKey);
+        if (!string.IsNullOrEmpty(saved))
+        {
+            await _editor.SetValue(saved);
+        }
+        await Task.Delay(100); 
+        await _editor.Layout(); 
     }
 
-    // 2. FORCE RE-LAYOUT (This fixes the "squashed" text)
-    // We give the browser a split second to finish rendering the div first
-    await Task.Delay(100); 
-    await _editor.Layout(); 
-}
-
-private async Task HandleContentChanged(ModelContentChangedEvent args)
-{
-    var code = await _editor.GetValue();
-    await JS.InvokeVoidAsync("localStorage.setItem", StorageKey, code);
-}
+    private async Task HandleContentChanged(ModelContentChangedEvent args)
+    {
+        var code = await _editor.GetValue();
+        await JS.InvokeVoidAsync("localStorage.setItem", StorageKey, code);
+    }
 
     private async Task ExecuteCode()
     {
@@ -81,6 +75,7 @@ private async Task HandleContentChanged(ModelContentChangedEvent args)
 }
 
 <style>
+    @* TODO reduce total lines of CSS *@
     .ide-container {
         display: grid;
         grid-template-rows: auto minmax(300px, 1fr) 200px;
@@ -119,7 +114,7 @@ private async Task HandleContentChanged(ModelContentChangedEvent args)
 
     .output-pane { 
         background: #000; 
-        color: #00ff00; /* Let's make it look like a terminal */
+        color: #00ff00;
         padding: 15px; 
         font-family: 'Cascadia Code', 'Courier New', monospace; 
         overflow-y: auto; 

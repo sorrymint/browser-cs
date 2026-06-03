@@ -9,3 +9,4 @@ dotnet add package Microsoft.CodeAnalysis.CSharp
 # dotnet add package Microsoft.CodeAnalysis.Workspaces.Common
 ```
 
+dotnet publish -c Release
