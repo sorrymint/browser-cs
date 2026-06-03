@@ -36,10 +36,25 @@ jobs:
     - name: Publish
       run: dotnet publish -c Release
 
+    # FIX 1: Prevent GitHub from ignoring Blazor's underscore folders (_framework, _content)
+    - name: Add .nojekyll
+      run: touch ${{ env.PUBLISH_DIR }}/.nojekyll
+
+    # FIX 2: Create a 404.html page copying index.html so deep links/refreshes don't break
+    - name: Create 404 page fallback
+      run: cp ${{ env.PUBLISH_DIR }}/index.html ${{ env.PUBLISH_DIR }}/404.html
+
     - name: Rewrite base href
       uses: SteveSandersonMS/ghaction-rewrite-base-href@5b54862a8831e012d4f1a8b2660894415fdde8ec
       with:
         html_path: ${{ env.PUBLISH_DIR }}/index.html
+        base_href: /browser-cs/
+
+    # Also rewrite the base href in the 404 page we just created
+    - name: Rewrite base href for 404 page
+      uses: SteveSandersonMS/ghaction-rewrite-base-href@5b54862a8831e012d4f1a8b2660894415fdde8ec
+      with:
+        html_path: ${{ env.PUBLISH_DIR }}/404.html
         base_href: /browser-cs/
 
     - name: Setup Pages
