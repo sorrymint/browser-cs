@@ -1,70 +1,70 @@
-name: Deploy to GitHub Pages
+# name: Deploy to GitHub Pages
 
-env:
-  # Point directly to the isolated output folder
-  PUBLISH_DIR: release_output/wwwroot
+# env:
+#   # Point directly to the isolated output folder
+#   PUBLISH_DIR: release_output/wwwroot
 
-on:
-  push:
-    branches: [ main, master ]
-  workflow_dispatch:
+# on:
+#   push:
+#     branches: [ main, master ]
+#   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+# permissions:
+#   contents: read
+#   pages: write
+#   id-token: write
 
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+# concurrency:
+#   group: "pages"
+#   cancel-in-progress: false
 
-jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+# jobs:
+#   deploy:
+#     environment:
+#       name: github-pages
+#       url: ${{ steps.deployment.outputs.page_url }}
+#     runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+#     steps:
+#     - name: Checkout
+#       uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '9.0.x'
+#     - name: Setup .NET
+#       uses: actions/setup-dotnet@v4
+#       with:
+#         dotnet-version: '9.0.x'
 
-    # Force the output to a brand new directory to guarantee we aren't uploading stale files
-    - name: Publish
-      run: dotnet publish -c Release -o release_output
+#     # Force the output to a brand new directory to guarantee we aren't uploading stale files
+#     - name: Publish
+#       run: dotnet publish -c Release -o release_output
 
-    # Use touch to ensure a completely empty file
-    - name: Add .nojekyll
-      run: touch ${{ env.PUBLISH_DIR }}/.nojekyll
+#     # Use touch to ensure a completely empty file
+#     - name: Add .nojekyll
+#       run: touch ${{ env.PUBLISH_DIR }}/.nojekyll
 
-    - name: Create 404 page fallback
-      run: cp ${{ env.PUBLISH_DIR }}/index.html ${{ env.PUBLISH_DIR }}/404.html
+#     - name: Create 404 page fallback
+#       run: cp ${{ env.PUBLISH_DIR }}/index.html ${{ env.PUBLISH_DIR }}/404.html
 
-    - name: Rewrite base href
-      uses: SteveSandersonMS/ghaction-rewrite-base-href@5b54862a8831e012d4f1a8b2660894415fdde8ec
-      with:
-        html_path: ${{ env.PUBLISH_DIR }}/index.html
-        base_href: /browser-cs/
+#     - name: Rewrite base href
+#       uses: SteveSandersonMS/ghaction-rewrite-base-href@5b54862a8831e012d4f1a8b2660894415fdde8ec
+#       with:
+#         html_path: ${{ env.PUBLISH_DIR }}/index.html
+#         base_href: /browser-cs/
 
-    - name: Rewrite base href for 404 page
-      uses: SteveSandersonMS/ghaction-rewrite-base-href@5b54862a8831e012d4f1a8b2660894415fdde8ec
-      with:
-        html_path: ${{ env.PUBLISH_DIR }}/404.html
-        base_href: /browser-cs/
+#     - name: Rewrite base href for 404 page
+#       uses: SteveSandersonMS/ghaction-rewrite-base-href@5b54862a8831e012d4f1a8b2660894415fdde8ec
+#       with:
+#         html_path: ${{ env.PUBLISH_DIR }}/404.html
+#         base_href: /browser-cs/
 
-    - name: Setup Pages
-      uses: actions/configure-pages@v5
+#     - name: Setup Pages
+#       uses: actions/configure-pages@v5
 
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: ${{ env.PUBLISH_DIR }}
+#     - name: Upload artifact
+#       uses: actions/upload-pages-artifact@v3
+#       with:
+#         path: ${{ env.PUBLISH_DIR }}
 
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
+#     - name: Deploy to GitHub Pages
+#       id: deployment
+#       uses: actions/deploy-pages@v4
